@@ -60,10 +60,26 @@ issueController.post(
     '/',
     async (req: RequestWithBody<IIssue>, res: Response, next: NextFunction) => {
         try {
-            console.log('req body:', req.body)
             const issue = new IssueSchema(req.body)
             await issue.save()
             res.status(201).json(issue)
+        } catch (error) {
+            next(error)
+        }
+    },
+)
+
+// create many issues
+issueController.post(
+    '/many',
+    async (
+        req: RequestWithBody<IIssue[]>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const issues = await IssueSchema.insertMany(req.body)
+            res.status(201).json(issues)
         } catch (error) {
             next(error)
         }
