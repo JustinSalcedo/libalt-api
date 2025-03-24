@@ -2,6 +2,7 @@ import express, {NextFunction, Request, Response} from 'express'
 import {IssueSchema} from '../schemas/issue.schema'
 import {ITimeEntry} from '../types/ITimeEntry'
 import {IIssue} from '../types/IIssue'
+import {UpdateIssueDto} from '../dto/update-issue.dto'
 
 const issueController = express.Router()
 
@@ -107,6 +108,31 @@ issueController.put(
     },
 )
 
+// update many issues
+issueController.put(
+    '/',
+    async (
+        req: RequestWithBody<UpdateIssueDto[]>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const issues = await Promise.all(
+                req.body.map(async issue => {
+                    return await IssueSchema.findByIdAndUpdate(
+                        issue.id,
+                        issue,
+                        {new: true},
+                    )
+                }),
+            )
+            res.json(issues)
+        } catch (error) {
+            next(error)
+        }
+    },
+)
+
 // delete issue
 issueController.delete(
     '/:id',
@@ -119,6 +145,16 @@ issueController.delete(
         }
     },
 )
+
+// delete all issues
+issueController.delete('/', async (_, res: Response, next: NextFunction) => {
+    try {
+        await IssueSchema.deleteMany()
+        res.json({message: 'All issues deleted'})
+    } catch (error) {
+        next(error)
+    }
+})
 
 // add time entry to issue
 issueController.post(

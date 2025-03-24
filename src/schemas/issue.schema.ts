@@ -8,5 +8,6 @@ export const IssueSchema = mongoose.model(
         name: {type: String, required: true},
         timeEntries: [TimeEntry],
         archived: {type: Boolean, default: false},
+        priority: {type: Number, required: false},
     }),
 )
